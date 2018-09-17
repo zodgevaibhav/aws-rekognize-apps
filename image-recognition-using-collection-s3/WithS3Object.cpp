@@ -17,19 +17,36 @@
 
 static const char* ALLOCATION_TAG = "RekognizeSample::Main";
 
-const Aws::String AK = "AKIAJMR5YCHG7WWRRJ4A";
-const Aws::String SK = "m1H5DhVxSXyYBugyGLpbwtdr0fyJRbSYXjvR7y7V";
-
-
 
 int main(int argc, char** argv)
 {
+
+
 
 	Aws::SDKOptions options;
 	options.loggingOptions.logLevel = Aws::Utils::Logging::LogLevel::Debug;
 
 	Aws::InitAPI(options);
 	{
+
+		 Aws::String AK;
+		 Aws::String SK;
+
+		char* buf = nullptr;
+		size_t sz = 0;
+
+		if (_dupenv_s(&buf, &sz, "AWS_ACCESS_KEY_ID") == 0 && buf != nullptr)
+		{
+			AK = buf;
+		}
+		
+		if (_dupenv_s(&buf, &sz, "AWS_SECRET_ACCESS_KEY") == 0 && buf != nullptr)
+		{
+			SK = buf;
+			free(buf);
+		}
+
+		
 
 		Aws::Client::ClientConfiguration clientConfiguration;
 		clientConfiguration.region = "us-west-2";
@@ -39,15 +56,15 @@ int main(int argc, char** argv)
 
 
 		Aws::Rekognition::Model::S3Object s3Object;
-		s3Object.WithBucket("vertex-team")
-			.WithName("vz.jpg");
+		s3Object.WithBucket("vertex-team") //bucket needs to create in AWS S3 using console
+			.WithName("vz.jpg"); //image is uploaded on S3
 
 		Aws::Rekognition::Model::Image image;
 		image.WithS3Object(s3Object);
 
 		Aws::Rekognition::Model::SearchFacesByImageRequest request;
 		request.WithImage(image)
-			.WithCollectionId("Vaibhav-Zodge")
+			.WithCollectionId("Vaibhav-Zodge") //collection needs to create using api's, which contain images with faces. Sample java code available https://github.com/zodgevaibhav/aws-lex-poly-rekgonition-demo
 			.WithFaceMatchThreshold(70)
 			.WithMaxFaces(2);
 
